@@ -176,10 +176,11 @@ function addExpression(){
             anchorPointProp.expression = "";
         }
 
-        // UI.buttonsGroup.removeExpressions.onClick = function(){
-        //     anchorPointProp.expression = "";
-        //     return;
-        // }
+        // Stores the position expression and deletes it if there's any
+        if (positionProp.expression) {
+            var originalPositionExpression = positionProp.expression;
+            positionProp.expression = "";
+        }
 
         // Get bounding box
         var sourceRect = currentLayer.sourceRectAtTime(currentTime, true);
@@ -232,26 +233,32 @@ function addExpression(){
         var centerWidth = width / 2;
 		var centerHeight = height / 2;
         anchorPointProp.expression = 
-        "fromWorld(toWorld([" + centerWidth + "," + centerHeight + ",0] + [" + anchorGridX + "*" + centerWidth + "+" + offsetX + "," + anchorGridY + "*"+ centerHeight + "+" + offsetY + ",0" + offsetZ + "]));";
+        "fromWorld(toWorld([" + centerWidth + ", " + centerHeight + ",  0] + [" + anchorGridX + " * " + centerWidth + " + " + offsetX + ", " + anchorGridY + " * "+ centerHeight + " + " + offsetY + ", " + offsetZ + "]));";
+        
         positionProp.expression =
         "try {\r" +
-        "	parent.fromWorld(toWorld([" + centerWidth + "," + centerHeight + ",0] + [" + anchorGridX + "*" + centerWidth + "+" + offsetX + "," + anchorGridY + "*"+ centerHeight + "+" + offsetY + ",0" + offsetZ + "]));\r" +
+        "	parent.fromWorld(toWorld([" + centerWidth + "," + centerHeight + ", 0] + [" + anchorGridX + "*" + centerWidth + "+" + offsetX + ", " + anchorGridY + "*"+ centerHeight + "+" + offsetY + ", " + offsetZ + "]));\r" +
         "}\r" +
         "catch(e)\r" +
         "{\r" +
-        "  toWorld([" + centerWidth + "," + centerHeight + ",0] + [" + anchorGridX + "*" + centerWidth + "+" + offsetX + "," + anchorGridY + "*"+ centerHeight + "+" + offsetY + ",0" + offsetZ + "]);\r" +
+        "  toWorld([" + centerWidth + "," + centerHeight + ", 0] + [" + anchorGridX + "*" + centerWidth + "+" + offsetX + ", " + anchorGridY + "*"+ centerHeight + "+" + offsetY + ", " + offsetZ + "]);\r" +
         "}";
+
 		positionProp.expressionEnabled = false;
 		positionProp.expressionEnabled = true;
         var newAnchorValue = anchorPointProp.valueAtTime(currentTime, false);
-		anchorPointProp.expression = "";
 		var newPositionValue = positionProp.valueAtTime(currentTime, false);
+		anchorPointProp.expression = "";
 		positionProp.expression = "";
         setPropertyValue(comp, positionProp, newPositionValue);
         setPropertyValue(comp, anchorPointProp, newAnchorValue);
+        // anchorPointProp.expressionEnabled = false;
+		// anchorPointProp.expressionEnabled = true;
 
+		positionProp.expression = originalPositionExpression;
         anchorPointProp.expression = "let layerRect = thisLayer.sourceRectAtTime(time, false);\nlet top = layerRect.top;\nlet left = layerRect.left;\nlet width = layerRect.width;\nlet height = layerRect.height;\n\n" + pointPositionTxt;
     }
+
     app.endUndoGroup();
 }
 
